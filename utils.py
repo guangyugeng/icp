@@ -1,6 +1,20 @@
 import numpy as np
 import re
 import os
+from sklearn.neighbors import NearestNeighbors
+
+
+def rotation_matrix_by_SVD(A, B):
+    #用 SVD
+    H = np.dot(A.T, B)
+    U, S, Vt = np.linalg.svd(H)
+    R = np.dot(Vt.T, U.T)
+    # special reflection case
+    if np.linalg.det(R) < 0:
+        Vt[A.shape[1]-1,:] *= -1
+        R = np.dot(Vt.T, U.T)
+
+    return R
 
 
 def file_to_np(file_path):
@@ -27,3 +41,23 @@ def rotation_matrix(axis, theta):
     return np.array([[a*a+b*b-c*c-d*d, 2*(b*c-a*d), 2*(b*d+a*c)],
                   [2*(b*c+a*d), a*a+c*c-b*b-d*d, 2*(c*d-a*b)],
                   [2*(b*d-a*c), 2*(c*d+a*b), a*a+d*d-b*b-c*c]])
+
+
+def nearest_neighbor(src, dst):
+    '''
+    Find the nearest (Euclidean) neighbor in dst for each point in src
+    Input:
+        src: Nxm array of points
+        dst: Nxm array of points
+    Output:
+        distances: Euclidean distances of the nearest neighbor
+        indices: dst indices of the nearest neighbor
+    '''
+
+    assert src.shape == dst.shape
+
+    neigh = NearestNeighbors(n_neighbors=1)
+    neigh.fit(dst)
+    distances, indices = neigh.kneighbors(src, return_distance=True)
+    # print(distances, indices)
+    return distances.ravel(), indices.ravel()
