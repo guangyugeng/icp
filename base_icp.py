@@ -46,6 +46,8 @@ def icp(A, B, max_iterations=10000, tolerance=0.001):
     for i in range(max_iterations):
         distances, indices = nearest_neighbor(src[:n,:].T, dst[:n,:].T)
 
+
+        # print('distances', distances)
         T,_,_ = register_by_SVD(src[:n,:].T, dst[:n,indices].T)
 
         # 变换矩阵作用于齐次坐标
