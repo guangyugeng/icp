@@ -1,14 +1,16 @@
 import os
 import unittest
 import numpy as np
-from utils import file_to_np, rotation_matrix
+from utils import file_to_np, rotation_matrix, view_numpy_data
 import time
 from base_icp import register_by_SVD, icp
 from dis_icp import dis_icp
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
 
 # Constants
-TESTS_NUM = 10                             # number of test iterations
+TESTS_NUM = 1                            # number of test iterations
 DIM = 3                                    # number of dimensions of the points
 NOISE_SIGMA = .01                           # standard deviation error to be added
 TRANSLATION = .1                            # max translation of the test set
@@ -18,6 +20,7 @@ ROTATION = .1                               # max rotation (radians) of the test
 class TestModel(unittest.TestCase):
     def setUp(self):
         self.A = file_to_np(os.path.join(os.getcwd(), 'data/Stanford_bunny.txt'))
+        # self.A = file_to_np(os.path.join(os.getcwd(), 'data/little.txt'))
         self.B = np.copy(self.A)
 
         # Translate
@@ -36,6 +39,9 @@ class TestModel(unittest.TestCase):
         # print('noise', np.random.randn(self.A.shape[0], DIM))
         self.B += np.random.randn(self.A.shape[0], DIM) * NOISE_SIGMA
 
+        view_numpy_data(self.A, self.B)
+
+
 
     # def tearDown(self):
 
@@ -43,6 +49,17 @@ class TestModel(unittest.TestCase):
         total_time = 0
 
         for i in range(TESTS_NUM):
+
+            # ax2=fig.add_subplot(111,projection='3d')
+            # ax2.scatter(z2,x2,y2,c='b',marker='.',s=2,linewidth=0,alpha=1,cmap='spectral')
+            #
+            # #ax.set_facecolor((0,0,0))
+            # ax2.axis('scaled')
+            # # ax.xaxis.set_visible(False)
+            # # ax.yaxis.set_visible(False)
+            # ax2.set_xlabel('X Label')
+            # ax2.set_ylabel('Y Label')
+            # ax2.set_zlabel('Z Label')
 
             start = time.time()
             T, R1, t1 = register_by_SVD(self.B, self.A)
@@ -54,6 +71,8 @@ class TestModel(unittest.TestCase):
 
             # Transform C
             C = np.dot(T, C.T).T
+
+            view_numpy_data(self.A, C)
 
             assert np.allclose(C[:,0:3], self.A, atol=6*NOISE_SIGMA) # T should transform B (or C) to A
             assert np.allclose(-t1, self.t, atol=6*NOISE_SIGMA)      # t and t1 should be inverses
@@ -79,6 +98,7 @@ class TestModel(unittest.TestCase):
 
             # Transform C
             C = np.dot(T, C.T).T
+
 
             assert np.allclose(C[:,0:3], self.A, atol=6*NOISE_SIGMA) # T should transform B (or C) to A
             assert np.allclose(-t1, self.t, atol=6*NOISE_SIGMA)      # t and t1 should be inverses

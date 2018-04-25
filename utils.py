@@ -2,7 +2,8 @@ import numpy as np
 import re
 import os
 from sklearn.neighbors import NearestNeighbors
-
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
 def rotation_matrix_by_SVD(A, B):
     #用 SVD
@@ -44,10 +45,35 @@ def rotation_matrix(axis, theta):
 
 
 def nearest_neighbor(src, dst):
-    assert src.shape == dst.shape
+    # assert src.shape == dst.shape
 
     neigh = NearestNeighbors(n_neighbors=1)
     neigh.fit(dst)
     distances, indices = neigh.kneighbors(src, return_distance=True)
-    # print(distances, indices)
+    # print('indices.ravel()', indices.ravel())
     return distances.ravel(), indices.ravel()
+
+
+def view_numpy_data(source_data, target_data):
+    x1 = [-k[0] for k in source_data]
+    y1 = [k[1] for k in source_data]
+    z1 = [k[2] for k in source_data]
+    x2 = [-k[0] for k in target_data]
+    y2 = [k[1] for k in target_data]
+    z2 = [k[2] for k in target_data]
+
+    fig=plt.figure(dpi=120)
+    ax=fig.add_subplot(111,projection='3d')
+    ax.scatter(z2, x2, y2, c='r', marker='.', s=2, linewidth=0, alpha=1, cmap='spectral')
+    ax.scatter(z1, x1, y1, c='b', marker='.', s=2, linewidth=0, alpha=1, cmap='spectral')
+
+    #ax.set_facecolor((0,0,0))
+    ax.axis('scaled')
+    # ax.xaxis.set_visible(False)
+    # ax.yaxis.set_visible(False)
+    ax.set_xlabel('X Label')
+    ax.set_ylabel('Y Label')
+    ax.set_zlabel('Z Label')
+    # ax.rotate(45)
+    plt.title('point cloud')
+    plt.show()

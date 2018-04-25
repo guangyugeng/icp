@@ -1,5 +1,6 @@
 import numpy as np
 from utils import rotation_matrix_by_SVD, nearest_neighbor
+from collections import Counter
 
 
 
@@ -47,8 +48,13 @@ def icp(A, B, max_iterations=10000, tolerance=0.001):
         distances, indices = nearest_neighbor(src[:n,:].T, dst[:n,:].T)
 
 
-        # print('distances', distances)
+        # print('icp distances', distances.shape[0])
         T,_,_ = register_by_SVD(src[:n,:].T, dst[:n,indices].T)
+
+
+        # dst = dst[:,indices]
+        # print('icp distances', distances.shape[0])
+        # T,_,_ = register_by_SVD(src[:n,:].T, dst[:n,:].T)
 
         # 变换矩阵作用于齐次坐标
         src = np.dot(T, src)
@@ -63,5 +69,4 @@ def icp(A, B, max_iterations=10000, tolerance=0.001):
     T,_,_ = register_by_SVD(A, src[:n,:].T)
 
     return T, distances, i
-
 
