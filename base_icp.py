@@ -65,6 +65,7 @@ def icp(A, B, max_iterations=10000, tolerance=0.001):
             break
         error = new_error
 
+
     # calculate final transformation
     T,_,_ = register_by_SVD(A, src[:n,:].T)
 
